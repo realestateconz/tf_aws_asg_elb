@@ -15,18 +15,23 @@ provider "aws" {
 }
 
 resource "aws_launch_configuration" "launch_config" {
-    name = "${var.lc_name}"
+    #name = "${var.lc_name}"
     image_id = "${var.ami_id}"
     instance_type = "${var.instance_type}"
     iam_instance_profile = "${var.iam_instance_profile}"
     key_name = "${var.key_name}"
     security_groups = ["${var.security_group}"]
-    user_data = "${file(var.user_data)}"
+    #user_data = "${file(var.user_data)}"
+
+    lifecycle {
+      create_before_destroy = true
+    }
+
 }
 
 resource "aws_autoscaling_group" "main_asg" {
   //We want this to explicitly depend on the launch config above
-  depends_on = ["aws_launch_configuration.launch_config"]
+  #depends_on = ["aws_launch_configuration.launch_config"]
   name = "${var.asg_name}"
 
   // The chosen availability zones *must* match the AZs the VPC subnets are
@@ -43,4 +48,16 @@ resource "aws_autoscaling_group" "main_asg" {
   health_check_grace_period = "${var.health_check_grace_period}"
   health_check_type = "${var.health_check_type}"
   load_balancers = ["${var.load_balancer_name}"]
+
+    lifecycle {
+      create_before_destroy = true
+    }
+
+  tag {
+    key = "Name"
+    value = "${var.asg_name}"
+    propagate_at_launch = true
+  }
+
+
 }
