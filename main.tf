@@ -21,6 +21,7 @@ resource "aws_launch_configuration" "launch_config" {
     iam_instance_profile = "${var.iam_instance_profile}"
     key_name = "${var.key_name}"
     security_groups = ["${var.security_group}"]
+    enable_monitoring = false
     #user_data = "${file(var.user_data)}"
 
     lifecycle {
@@ -48,6 +49,7 @@ resource "aws_autoscaling_group" "main_asg" {
   health_check_grace_period = "${var.health_check_grace_period}"
   health_check_type = "${var.health_check_type}"
   load_balancers = ["${var.load_balancer_name}"]
+  wait_for_elb_capacity = "${var.asg_minimum_number_of_instances}"
 
     lifecycle {
       create_before_destroy = true
